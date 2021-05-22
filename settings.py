@@ -6,4 +6,4 @@ class Settings:
         self.screen_height = 800
         self.bg_color = (250, 250, 250)
 
-        # self.vinni_speed = 1.5
+        self.vinni_speed = 1.5
