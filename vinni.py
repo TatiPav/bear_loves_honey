@@ -14,9 +14,9 @@ class Vinni:
         self.rect = self.image.get_rect()
 
         # Каждый новый медвежонок появляется в центре нижнего края экрана
-        # self.rect.midbottom = self.screen_rect.midbottom
+        self.rect.midbottom = self.screen_rect.midbottom
         # Каждый новый медвежонок появляется в центре экрана
-        self.rect.center = self.screen_rect.center
+        # self.rect.center = self.screen_rect.center
         # Сохранение вещественной координаты цента медвежонка
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)

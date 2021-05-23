@@ -3,6 +3,7 @@ import pygame
 
 from settings import Settings
 from vinni import Vinni
+from bee import Bee
 
 
 class BearHoney:
@@ -20,12 +21,15 @@ class BearHoney:
         pygame.display.set_caption("Мишки любят мёд")
 
         self.vinni = Vinni(self)
+        # Создаём группу
+        self.bees = pygame.sprite.Group()
 
     def run_game(self):
         """Запускаем основной цикл игры, управляем обновленем экрана"""
         while True:
             self._check_events()
             self.vinni.update()
+            self.bees.update()
             self._update_screen()
 
 
@@ -52,6 +56,9 @@ class BearHoney:
             """Выход клавишей q"""
         elif event.key == pygame.K_q:
             sys.exit()
+        elif event.key == pygame.K_SPACE:
+            self._fire_bee()
+
 
     def _check_keyup_events(self, event):
         """Отпущены клавиши"""
@@ -64,11 +71,18 @@ class BearHoney:
         elif event.key == pygame.K_DOWN:
             self.vinni.moving_down = False
 
+    def _fire_bee(self):
+        """Создание новой пчелы и включение её в группу bees"""
+        new_bee = Bee(self)
+        self.bees.add(new_bee)
+
 
     def _update_screen(self):
         # При каждом проходе цикла прорисовывается экран
         self.screen.fill(self.settings.bg_color)
         self.vinni.blitme()
+        for bee in self.bees.sprites():
+            bee.draw_bee()
         # Отображается последнее окно
         pygame.display.flip()
 

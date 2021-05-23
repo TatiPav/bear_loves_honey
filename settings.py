@@ -7,3 +7,6 @@ class Settings:
         self.bg_color = (250, 250, 250)
 
         self.vinni_speed = 1.5
+
+        # Параметры пчелы
+        self.bee_speed = 1
