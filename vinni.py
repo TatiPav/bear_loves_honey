@@ -36,10 +36,7 @@ class Vinni:
             self.y -= self.settings.vinni_speed
         if self.moving_down and self.rect.bottom < self.screen_rect.bottom:
             self.y += self.settings.vinni_speed
-        # if self.moving_up and self.rect.up < self.screen_rect.up:
-        #     self.y -= self.settings.vinni_speed
-        # if self.moving_down and self.rect.down > 0:
-        #     self.y += self.settings.vinni_speed
+
         self.rect.x = self.x
         self.rect.y = self.y
 
