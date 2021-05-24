@@ -10,7 +10,7 @@ class Vinni:
         self.screen_rect = bh_game.screen.get_rect()
 
         # Загружает изображение медвежонка и получает прямоугольник
-        self.image = pygame.image.load('images/vi.bmp')
+        self.image = pygame.image.load('images/v1.bmp')
         self.rect = self.image.get_rect()
 
         # Каждый новый медвежонок появляется в центре нижнего края экрана

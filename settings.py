@@ -4,9 +4,10 @@ class Settings:
         # Параметры экрана
         self.screen_width = 1500
         self.screen_height = 800
-        self.bg_color = (250, 250, 250)
+        self.bg_color = (255, 255, 255)
 
         self.vinni_speed = 1.5
 
         # Параметры пчелы
-        self.bee_speed = 1
+        self.bee_speed = 2
+        self.bee_allowed = 3
