@@ -1,6 +1,7 @@
 import pygame
 from pygame.sprite import Sprite
 
+
 class Honey(Sprite):
     """Единица мёда"""
     def __init__(self, bh_game):

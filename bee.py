@@ -9,7 +9,6 @@ class Bee(Sprite):
         self.screen = bh_game.screen
         self.settings = bh_game.settings
 
-
         self.image = pygame.image.load('images/bee.bmp')
         self.rect = self.image.get_rect()
 
@@ -31,4 +30,5 @@ class Bee(Sprite):
     def draw_bee(self):
         """Вывод пчелы на экран"""
 
-        self.screen.blit(self.image, self.rect)
+        # self.screen.blit(self.image, self.rect)
+        pygame.draw.rect(self.screen, self.rect)

@@ -4,7 +4,8 @@ from time import sleep
 import pygame
 
 from settings import Settings
-from game_result import GameResult
+from game_stats import GameStats
+from button import Button
 from vinni import Vinni
 from bee import Bee
 from honey import Honey
@@ -25,24 +26,26 @@ class BearHoney:
         pygame.display.set_caption("Мишки любят мёд")
 
         # Для подсчёта результатов
-        self.result = GameResult
+        self.stats = GameStats
 
         self.vinni = Vinni(self)
         # Создаём группу
         self.bees = pygame.sprite.Group()
-        self.honeyes = pygame.sprite.Group()
+        self.honey_s = pygame.sprite.Group()
 
         self._create_shelf()
+
+        self.play_button = Button(self, "Play")
 
     def run_game(self):
         """Запускаем основной цикл игры, управляем обновленем экрана"""
         while True:
             self._check_events()
 
-            if self.result.game_active:
+            if self.stats.game_active:
                 self.vinni.update()
                 self._update_bees()
-                self._update_honeyes()
+                self._update_honey_s()
 
             self._update_screen()
 
@@ -55,6 +58,23 @@ class BearHoney:
                 self._check_keydown_events(event)
             elif event.type == pygame.KEYUP:
                 self._check_keyup_events(event)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                self._check_play_botton(mouse_pos)
+
+    def _check_play_botton(self, mouse_pos):
+        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
+        if button_clicked and not self.stats.game_active:
+            self.stats.reset_stats()
+            self.stats.game_active = True
+
+            self.honey_s.empty()
+            self.bees.empty()
+
+            self._create_shelf()
+            self.vinni.center_vinni()
+
+            pygame.mouse.set_visible(False)
 
     def _check_keydown_events(self, event):
         """Нажатие клавиш"""
@@ -89,7 +109,6 @@ class BearHoney:
             new_bee = Bee(self)
             self.bees.add(new_bee)
 
-
     def _update_bees(self):
         """Обновляет позиции и убирает старые позиции"""
         self.bees.update()
@@ -101,40 +120,39 @@ class BearHoney:
         self._check_bee_honey_collisions()
 
     def _check_bee_honey_collisions(self):
-           # Проверяем попадание и удаляем пчелу и банку
-        collisions = pygame.sprite.groupcollide(self.bees, self.honeyes, True, True)
+        # Проверяем попадание и удаляем пчелу и банку
+        collisions = pygame.sprite.groupcollide(self.bees, self.honey_s, True, True)
 
-        if not self.honeyes:
+        if not self.honey_s:
             # Удаление существующих банок и создание новых
             self.bees.empty()
             self._create_shelf()
 
-    def _update_honeyes(self):
-
+    def _update_honey_s(self):
         self._check_shelf_edges()
-        self.honeyes.update()
+        self.honey_s.update()
 
         # Проверка столкновений между медвежонком и банкой
-        if pygame.sprite.spritecollideany(self.vinni, self.honeyes):
+        if pygame.sprite.spritecollideany(self.vinni, self.honey_s):
             self._vinni_hit()
 
-        self._check_honeyes_botton()
+        self._check_honey_s_botton()
 
-    def _check_honeyes_botton(self):
-        """Прверка - появились ли медовые банки внизу"""
+    def _check_honey_s_botton(self):
+        """Проверка - появились ли медовые банки внизу"""
         screen_rect = self.screen.get_rect()
-        for honey in self.honeyes.sprites():
+        for honey in self.honey_s.sprites():
             if honey.rect.bottom >= screen_rect.bottom:
                 self._vinni_hit()
                 break
 
     def _vinni_hit(self):
         """Обработка столкновения"""
-        if self.result.vinnis_left > 0:
-            self.result.vinnis_left -= 1
+        if self.stats.vinni_s_left > 0:
+            self.stats.vinni_s_left -= 1
 
             # Очищаем список банок и мёда
-            self.honeyes.empty()
+            self.honey_s.empty()
             self.bees.empty()
 
             self._create_shelf()
@@ -142,14 +160,15 @@ class BearHoney:
 
             sleep(0.5)
         else:
-            self.result.game_active = False
+            self.stats.game_active = False
+            pygame.mouse.set_visible(True)
 
     def _create_shelf(self):
         # Создание полок для мёда
         honey = Honey(self)
         honey_width, honey_height = honey.rect.size
         available_space_x = self.settings.screen_width - (2 * honey_width)
-        number_honeyes_x = available_space_x // (2 * honey_width)
+        number_honey_s_x = available_space_x // (2 * honey_width)
 
         # Расчитываем возможное к-во полок на экране
         vinni_height = self.vinni.rect.height
@@ -158,7 +177,7 @@ class BearHoney:
 
         for row_number in range(number_rows):
             # Создание первой полки банок с мёдом
-            for honey_number in range(number_honeyes_x):
+            for honey_number in range(number_honey_s_x):
                 self._create_honey(honey_number, row_number)
 
     def _create_honey(self, honey_number, row_number):
@@ -168,22 +187,20 @@ class BearHoney:
         honey.x = honey_width + 2 * honey_width * honey_number
         honey.rect.x = honey.x
         honey.rect.y = honey.rect.height + 2 * honey.rect.height * row_number
-        self.honeyes.add(honey)
-
+        self.honey_s.add(honey)
 
     def _check_shelf_edges(self):
         """Реагирует при достижении края экрана"""
-        for honey in self.honeyes.sprites():
+        for honey in self.honey_s.sprites():
             if honey.check_edges():
                 self._change_shelf_direction()
                 break
 
     def _change_shelf_direction(self):
         """Опускает все банки и меняет направление"""
-        for honey in self.honeyes.sprites():
+        for honey in self.honey_s.sprites():
             honey.rect.y += self.settings.shelf_drop_speed
         self.settings.shelf_direction *= -1
-
 
     def _update_screen(self):
         # При каждом проходе цикла прорисовывается экран
@@ -192,7 +209,11 @@ class BearHoney:
         for bee in self.bees.sprites():
             bee.draw_bee()
 
-        self.honeyes.draw(self.screen)
+        self.honey_s.draw(self.screen)
+
+        if not self.stats.game_active:
+            self.play_button.draw_button()
+
         # Отображается последнее окно
         pygame.display.flip()
 
