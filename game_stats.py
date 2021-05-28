@@ -5,9 +5,12 @@ class GameStats:
         self.reset_stats()
 
         # Игра в неактивном состоянии
-
         self.game_active = False
+
+        self.high_score = 0
 
     def reset_stats(self):
         """Создаёт изменение результатов"""
         self.vinni_s_left = self.settings.vinni_limit
+        self.score = 0
+        self.level = 1

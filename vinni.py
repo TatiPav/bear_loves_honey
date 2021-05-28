@@ -1,9 +1,11 @@
 import pygame
+from pygame.sprite import Sprite
 
-class Vinni:
+class Vinni(Sprite):
     """Этот класс управляет медвежонком"""
 
     def __init__(self, bh_game):
+        super().__init__()
         """Инициализирует медвежонка и задаёт ему начальную позицию"""
         self.screen = bh_game.screen
         self.settings = bh_game.settings

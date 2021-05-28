@@ -5,6 +5,7 @@ import pygame
 
 from settings import Settings
 from game_stats import GameStats
+from scoreboard import Scoreboard
 from button import Button
 from vinni import Vinni
 from bee import Bee
@@ -27,6 +28,7 @@ class BearHoney:
 
         # Для подсчёта результатов
         self.stats = GameStats
+        self.sb = Scoreboard(self)
 
         self.vinni = Vinni(self)
         # Создаём группу
@@ -65,8 +67,13 @@ class BearHoney:
     def _check_play_botton(self, mouse_pos):
         button_clicked = self.play_button.rect.collidepoint(mouse_pos)
         if button_clicked and not self.stats.game_active:
+            # Сброс игровых настроек при новой игре
+            self.settings.initialize_dynamic_settings()
             self.stats.reset_stats()
             self.stats.game_active = True
+            self.sb.prep_score()
+            self.sb.prep_level()
+            self.sb.prep_vinni_s()
 
             self.honey_s.empty()
             self.bees.empty()
@@ -123,10 +130,20 @@ class BearHoney:
         # Проверяем попадание и удаляем пчелу и банку
         collisions = pygame.sprite.groupcollide(self.bees, self.honey_s, True, True)
 
+        if collisions:
+            for honey_s in collisions.values():
+                self.stats.score += self.settings.honey_points * len(honey_s)
+            self.sb.prep_score()
+            self.check_high_score()
+
         if not self.honey_s:
             # Удаление существующих банок и создание новых
             self.bees.empty()
             self._create_shelf()
+            self.settings.increase_speed()
+
+            self.stats.level += 1
+            self.sb.prep_level()
 
     def _update_honey_s(self):
         self._check_shelf_edges()
@@ -150,6 +167,7 @@ class BearHoney:
         """Обработка столкновения"""
         if self.stats.vinni_s_left > 0:
             self.stats.vinni_s_left -= 1
+            self.sb.prep_vinni_s()
 
             # Очищаем список банок и мёда
             self.honey_s.empty()
@@ -208,8 +226,9 @@ class BearHoney:
         self.vinni.blitme()
         for bee in self.bees.sprites():
             bee.draw_bee()
-
         self.honey_s.draw(self.screen)
+
+        self.sb.show_score()
 
         if not self.stats.game_active:
             self.play_button.draw_button()

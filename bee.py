@@ -32,3 +32,4 @@ class Bee(Sprite):
 
         # self.screen.blit(self.image, self.rect)
         pygame.draw.rect(self.screen, self.rect)
+
